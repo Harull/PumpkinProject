@@ -52,9 +52,9 @@ Plugins/**/Binaries/*
 **/Binaries/*
 
 # Builds
-Build/*
-/Build/Windows
-**/Build/Windows
+Build/
+/Build/Windows/
+**/Build/Windows/
 
 # Whitelist PakBlacklist-<BuildConfiguration>.txt files
 !Build/*/

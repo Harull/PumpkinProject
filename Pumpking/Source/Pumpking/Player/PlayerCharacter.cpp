@@ -7,7 +7,6 @@
 #include "Camera/CameraComponent.h"
 #include "Macro.h"
 
-
 APlayerCharacter::APlayerCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -23,7 +22,7 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	if (ULocalPlayer* _localPlayer = Cast<ULocalPlayer>(GetWorld()->GetFirstLocalPlayerFromController()))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* _inputSystem = _localPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
@@ -32,7 +31,6 @@ void APlayerCharacter::BeginPlay()
 			LOG("AddMappingContext");
 		}
 	}
-
 }
 
 // Called every frame
@@ -43,7 +41,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 		Multi_ReplicatePosition(GetActorLocation(), GetActorRotation());
 	else
 		Server_ReplicatePosition(GetActorLocation(), GetActorRotation());
-
 }
 
 // Called to bind functionality to input
@@ -51,9 +48,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	UEnhancedInputComponent* _input = Cast<UEnhancedInputComponent>(PlayerInputComponent);
-	_input->BindAction(moveAction, ETriggerEvent::Triggered, this,&APlayerCharacter::Movement);
-	_input->BindAction(jumpAction, ETriggerEvent::Triggered, this,&APlayerCharacter::Jumping);
-	_input->BindAction(rotateAction, ETriggerEvent::Triggered, this,&APlayerCharacter::Rotate);
+	_input->BindAction(moveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Movement);
+	_input->BindAction(jumpAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Jumping);
+	_input->BindAction(rotateAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Rotate);
 }
 
 void APlayerCharacter::Movement(const FInputActionValue& _value)
@@ -84,13 +81,10 @@ void APlayerCharacter::Server_ReplicatePosition_Implementation(const FVector& _p
 	Multi_ReplicatePosition(_position, _rotation);
 }
 
-
 void APlayerCharacter::Multi_ReplicatePosition_Implementation(const FVector& _position, const FRotator& _rotation)
 {
 	if (IsLocallyControlled())
 		return;
 	SetActorLocation(_position);
 	SetActorRotation(_rotation);
-
 }
-

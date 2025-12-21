@@ -29,6 +29,9 @@ class PUMPKING_API APlayerCharacter : public ACharacter
 	UPROPERTY(EditAnywhere) TObjectPtr<UInputAction> jumpAction = nullptr;
 	UPROPERTY(EditAnywhere) TObjectPtr<UInputAction> rotateAction = nullptr;
 
+	//Anim
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess)) FVector2D inputValue = FVector2D::ZeroVector;
+
 public:
 	APlayerCharacter();
 
@@ -43,6 +46,7 @@ private:
 	void Jumping();
 
 	UFUNCTION(Server, Reliable) void Server_ReplicatePosition(const FVector& _position, const FRotator& _rotation);
-	UFUNCTION(NetMulticast, Reliable) void Multi_ReplicatePosition(const FVector& _position,const FRotator& _rotation);
-
+	UFUNCTION(NetMulticast, Reliable) void Multi_ReplicatePosition(const FVector& _position, const FRotator& _rotation);
+	UFUNCTION(Server, Reliable) void Server_ReplicateAnim(const FVector2D& _inputValue);
+	UFUNCTION(NetMulticast, Reliable) void Multi_ReplicateAnim(const FVector2D& _inputValue);
 };

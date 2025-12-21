@@ -22,7 +22,10 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
+	if (SERVER)
+		LOG("Server");
+	else
+		LOG("Client");
 	if (ULocalPlayer* _localPlayer = Cast<ULocalPlayer>(GetWorld()->GetFirstLocalPlayerFromController()))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* _inputSystem = _localPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
@@ -49,23 +52,29 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	UEnhancedInputComponent* _input = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	_input->BindAction(moveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Movement);
+	_input->BindAction(moveAction, ETriggerEvent::Completed, this, &APlayerCharacter::Movement);
 	_input->BindAction(jumpAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Jumping);
 	_input->BindAction(rotateAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Rotate);
 }
 
 void APlayerCharacter::Movement(const FInputActionValue& _value)
 {
-	FVector2D _movementInput = _value.Get < FVector2D>();
-	FRotator _rotation = GetControlRotation();
+	const FVector2D& _movementInput = _value.Get<FVector2D>();
+	inputValue = _movementInput;
+	const FRotator& _rotation = GetControlRotation();
 
-	FVector _move = GetActorForwardVector() * _movementInput.X + GetActorRightVector() * _movementInput.Y;
+	const FVector& _move = GetActorForwardVector() * _movementInput.X + GetActorRightVector() * _movementInput.Y;
 
 	AddMovementInput(_move);
+	if (SERVER)
+		Multi_ReplicateAnim(inputValue);
+	else
+		Server_ReplicateAnim(inputValue);
 }
 
 void APlayerCharacter::Rotate(const FInputActionValue& _value)
 {
-	FVector2D _rotateInput = _value.Get<FVector2D>();
+	const FVector2D& _rotateInput = _value.Get<FVector2D>();
 
 	AddControllerYawInput(_rotateInput.X);
 	AddControllerPitchInput(-_rotateInput.Y);
@@ -83,8 +92,20 @@ void APlayerCharacter::Server_ReplicatePosition_Implementation(const FVector& _p
 
 void APlayerCharacter::Multi_ReplicatePosition_Implementation(const FVector& _position, const FRotator& _rotation)
 {
-	if (IsLocallyControlled())
+	if (SELF)
 		return;
 	SetActorLocation(_position);
 	SetActorRotation(_rotation);
+}
+
+void APlayerCharacter::Server_ReplicateAnim_Implementation(const FVector2D& _inputValue)
+{
+	Multi_ReplicateAnim(_inputValue);
+}
+
+void APlayerCharacter::Multi_ReplicateAnim_Implementation(const FVector2D& _inputValue)
+{
+	if (SELF)
+		return;
+	inputValue = _inputValue;
 }

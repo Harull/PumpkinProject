@@ -46,13 +46,14 @@ bool UWorldGeneratorSubsystem::ComputeNewPosForRoom(const FVector& _currentDoorP
 		return false;
 	}
 
-	FVector _fromForward = _direction;
 	FVector _toForward = _door->GetActorForwardVector();
-	FQuat _deltaQuat = FQuat::FindBetweenVectors(_toForward, -_fromForward);
+	FQuat _deltaQuat = FQuat::FindBetweenVectors(_toForward, -_direction);
 	FQuat _newRoomQuat = _deltaQuat * _newRoom->GetActorQuat();
 	_newRoom->SetActorRotation(_newRoomQuat);
 
 	_newRoom->SetActorLocation(_currentDoorPos + _direction * _newRoom->GetDistanceWithDoor(_door));
+
+	_newRoom->ComputeCollision();
 	//bool _shouldBeDeleted = false;
 	//for (ARoom* _currentRoom : allRooms)
 	//{

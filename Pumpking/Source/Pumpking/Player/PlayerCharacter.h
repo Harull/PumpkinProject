@@ -29,6 +29,7 @@ class PUMPKING_API APlayerCharacter : public ACharacter
 	UPROPERTY(EditAnywhere) TObjectPtr<UInputAction> moveAction = nullptr;
 	UPROPERTY(EditAnywhere) TObjectPtr<UInputAction> jumpAction = nullptr;
 	UPROPERTY(EditAnywhere) TObjectPtr<UInputAction> rotateAction = nullptr;
+	UPROPERTY(EditAnywhere) bool wantToGenerate = false;
 
 	//Anim
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess)) FVector2D inputValue = FVector2D::ZeroVector;

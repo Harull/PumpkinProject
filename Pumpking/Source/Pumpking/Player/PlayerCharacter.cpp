@@ -36,13 +36,16 @@ void APlayerCharacter::BeginPlay()
 		}
 	}
 
-	FTimerHandle _timer;
-	TIMER(GetWorld(), _timer, { TObjectPtr<UWorldGeneratorSubsystem> _sub = GetWorld()->GetSubsystem<UWorldGeneratorSubsystem>();
-	if (_sub)
+	if (SERVER && wantToGenerate)
 	{
-		_sub->SetDataAsset(worldGenDataAsset);
-		_sub->GenerateWorld();
-	} }, 0.5f);
+		FTimerHandle _timer;
+		TIMER(GetWorld(), _timer, { TObjectPtr<UWorldGeneratorSubsystem> _sub = GetWorld()->GetSubsystem<UWorldGeneratorSubsystem>();
+		if (_sub)
+		{
+			_sub->SetDataAsset(worldGenDataAsset);
+			_sub->GenerateWorld();
+		} }, 0.5f);
+	}
 	/*TObjectPtr<UWorldGeneratorSubsystem> _sub = GetWorld()->GetSubsystem<UWorldGeneratorSubsystem>();
 	if (_sub)
 	{

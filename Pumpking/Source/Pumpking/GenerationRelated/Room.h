@@ -41,7 +41,7 @@ public:
 	/// </summary>
 	float GetDistanceWithDoor(TObjectPtr<ADoor> _door);
 	float GetDistanceWithDoor(const int _index);
-
+	void ComputeCollision();
 	void RemoveDoor(TObjectPtr<ADoor> _door);
 
 	TObjectPtr<ADoor> GetFirstAvailableDoor();

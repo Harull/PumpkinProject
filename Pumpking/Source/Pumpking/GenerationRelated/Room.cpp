@@ -16,22 +16,6 @@ void ARoom::OnConstruction(const FTransform& Transform)
 {
 	//UKismetSystemLibrary::PrintString(this, "OnConstruction Called");
 	RetrieveAllDoors();
-
-	/*TArray<UStaticMeshComponent*> _allMeshes;
-	GetComponents<UStaticMeshComponent*>(_allMeshes);
-
-	for (UStaticMeshComponent* mesh : _allMeshes)
-	{
-		if (mesh)
-		{
-			roomBox += mesh->Bounds.GetBox();
-		}
-	}
-
-	if (roomBox.IsValid)
-	{
-		DrawDebugBox(GetWorld(), roomBox.GetCenter(), roomBox.GetExtent(), FColor::Red, true, 10.0f, 0, 5.0f);
-	}*/
 }
 
 // Called when the game starts or when spawned
@@ -69,6 +53,24 @@ float ARoom::GetDistanceWithDoor(const int _index)
 {
 	bool _validIndex = _index >= 0 && _index < doorsInRoom.Num() - 1;
 	return _validIndex ? GetDistanceWithDoor(doorsInRoom[_index]) : INFINITY;
+}
+
+void ARoom::ComputeCollision()
+{
+	TArray<UPrimitiveComponent*> _allMeshes;
+	GetComponents<UPrimitiveComponent*>(_allMeshes);
+	for (UPrimitiveComponent* mesh : _allMeshes)
+	{
+		if (mesh)
+		{
+			roomBox += mesh->Bounds.GetBox();
+		}
+	}
+
+	if (roomBox.IsValid)
+	{
+		DrawDebugBox(GetWorld(), roomBox.GetCenter(), roomBox.GetExtent(), FColor::Red, true, 10.0f, 0, 5.0f);
+	}
 }
 
 void ARoom::RemoveDoor(TObjectPtr<ADoor> _door)

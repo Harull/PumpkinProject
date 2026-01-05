@@ -6,6 +6,7 @@
 #include <GameFramework/SpringArmComponent.h>
 #include "Camera/CameraComponent.h"
 #include "Macro.h"
+#include <Subsystem/WorldGeneratorSubsystem.h>
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -34,6 +35,20 @@ void APlayerCharacter::BeginPlay()
 			LOG("AddMappingContext");
 		}
 	}
+
+	FTimerHandle _timer;
+	TIMER(GetWorld(), _timer, { TObjectPtr<UWorldGeneratorSubsystem> _sub = GetWorld()->GetSubsystem<UWorldGeneratorSubsystem>();
+	if (_sub)
+	{
+		_sub->SetDataAsset(worldGenDataAsset);
+		_sub->GenerateWorld();
+	} }, 0.5f);
+	/*TObjectPtr<UWorldGeneratorSubsystem> _sub = GetWorld()->GetSubsystem<UWorldGeneratorSubsystem>();
+	if (_sub)
+	{
+		_sub->SetDataAsset(worldGenDataAsset);
+		_sub->GenerateWorld();
+	}*/
 }
 
 // Called every frame

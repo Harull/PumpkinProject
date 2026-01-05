@@ -6,14 +6,12 @@
 #include "Engine/DataAsset.h"
 #include "WorldGeneratorDataAsset.generated.h"
 
-/**
- *
- */
+class ARoom;
 UCLASS()
 class PUMPKING_API UWorldGeneratorDataAsset : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
+public:
 	UPROPERTY(EditAnywhere) int maximumRoomCount = 10;
-	UPROPERTY(EditAnywhere) int maximumTryPerRoom = 10;
-	UPROPERTY(EditAnywhere) TArray<TSubclassOf<AActor>> allRoomsTypes;
+	UPROPERTY(EditAnywhere) TArray<TSubclassOf<ARoom>> allRoomsTypes;
 };

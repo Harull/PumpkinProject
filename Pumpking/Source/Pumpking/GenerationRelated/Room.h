@@ -6,19 +6,20 @@
 #include "GameFramework/Actor.h"
 #include "Room.generated.h"
 
-
+class ADoor;
 
 UCLASS()
 class PUMPKING_API ARoom : public AActor
 {
 	GENERATED_BODY()
-	
+
 private:
-	UPROPERTY(VisibleAnywhere) TArray<TObjectPtr<class ADoor>> doorsInRoom = {};
+	UPROPERTY(VisibleAnywhere) FBox roomBox;
+	UPROPERTY(VisibleAnywhere) TArray<TObjectPtr<ADoor>> doorsInRoom = {};
+	UPROPERTY(VisibleAnywhere) bool hasAvailableDoor = true;
 private:
 
-
-public:	
+public:
 	ARoom();
 
 protected:
@@ -27,10 +28,22 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable) int GetDoorsCount() const { return doorsInRoom.Num(); }
+	FORCEINLINE TArray<TObjectPtr<ADoor>> GetAllDoors() const { return doorsInRoom; }
+	FORCEINLINE bool HasAvailableDoor() const { return hasAvailableDoor; }
 
 public:
 	/// <summary>
 	/// Retrieve in the children of this actor the child actor components, and check if it's a door, if it is, add it to the doorsInRoom array
 	/// </summary>
 	UFUNCTION(BlueprintCallable) void RetrieveAllDoors();
+	/// <summary>
+	/// Compute the distance of the room with a door
+	/// </summary>
+	float GetDistanceWithDoor(TObjectPtr<ADoor> _door);
+	float GetDistanceWithDoor(const int _index);
+
+	void RemoveDoor(TObjectPtr<ADoor> _door);
+
+	TObjectPtr<ADoor> GetFirstAvailableDoor();
+	TObjectPtr<ADoor> GetRandomAvailableDoor();
 };

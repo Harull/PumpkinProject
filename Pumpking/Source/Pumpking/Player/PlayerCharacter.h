@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Pumpking/DataAssets/WorldGeneratorDataAsset.h"
 #include "PlayerCharacter.generated.h"
 
 class UInputMappingContext;
@@ -31,6 +32,9 @@ class PUMPKING_API APlayerCharacter : public ACharacter
 
 	//Anim
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess)) FVector2D inputValue = FVector2D::ZeroVector;
+
+	//Data
+	UPROPERTY(EditAnywhere) TObjectPtr<UWorldGeneratorDataAsset> worldGenDataAsset = nullptr;
 
 public:
 	APlayerCharacter();

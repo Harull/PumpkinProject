@@ -16,11 +16,11 @@ private:
 
 private:
 	//usefull data for generation
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess)) bool bIsAvailable = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess)) bool bIsAvailable = true;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess)) bool bIsConnected = false;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess)) bool bIsCondamned = false;
 
-public:	
+public:
 	ADoor();
 
 public:
@@ -29,15 +29,14 @@ public:
 	}
 	FORCEINLINE void SetIsConnected(const bool _bValue) {
 		bIsConnected = _bValue;
-		bIsAvailable = bIsConnected ? true : bIsAvailable;
 	}
 	FORCEINLINE void SetIsCondamned(const bool _bValue) {
 		bIsCondamned = _bValue;
-		bIsAvailable = bIsCondamned ? true : bIsAvailable;
 	}
-	FORCEINLINE bool GetIsAvailable()const { return bIsAvailable; }
+	FORCEINLINE bool GetIsAvailable() const
+	{
+		return bIsAvailable && !bIsConnected && !bIsCondamned;
+	}
 	FORCEINLINE bool GetIsConnected()const { return bIsConnected; }
 	FORCEINLINE bool GetIsCondamned()const { return bIsCondamned; }
-
-
 };

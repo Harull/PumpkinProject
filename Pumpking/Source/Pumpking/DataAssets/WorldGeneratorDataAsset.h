@@ -14,4 +14,5 @@ class PUMPKING_API UWorldGeneratorDataAsset : public UPrimaryDataAsset
 public:
 	UPROPERTY(EditAnywhere) int maximumRoomCount = 10;
 	UPROPERTY(EditAnywhere) TArray<TSubclassOf<ARoom>> allRoomsTypes;
+	UPROPERTY(EditAnywhere) TSubclassOf<AActor> occludedDoor = nullptr;
 };

@@ -30,6 +30,7 @@ public:
 	UFUNCTION(BlueprintCallable) int GetDoorsCount() const { return doorsInRoom.Num(); }
 	FORCEINLINE TArray<TObjectPtr<ADoor>> GetAllDoors() const { return doorsInRoom; }
 	FORCEINLINE bool HasAvailableDoor() const { return hasAvailableDoor; }
+	FORCEINLINE FBox GetRoomCollision() const { return roomBox; }
 
 public:
 	/// <summary>
@@ -46,4 +47,5 @@ public:
 
 	TObjectPtr<ADoor> GetFirstAvailableDoor();
 	TObjectPtr<ADoor> GetRandomAvailableDoor();
+	TArray< TObjectPtr<ADoor>> GetAllAvailablesDoors();
 };

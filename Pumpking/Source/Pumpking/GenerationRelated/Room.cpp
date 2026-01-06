@@ -10,6 +10,7 @@ ARoom::ARoom()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+	bReplicates = true;
 }
 
 void ARoom::OnConstruction(const FTransform& Transform)
@@ -57,27 +58,25 @@ float ARoom::GetDistanceWithDoor(const int _index)
 
 void ARoom::ComputeCollision()
 {
-	TArray<UPrimitiveComponent*> _allMeshes;
-	GetComponents<UPrimitiveComponent*>(_allMeshes);
-	for (UPrimitiveComponent* mesh : _allMeshes)
+	TArray<UStaticMeshComponent*> _allMeshes;
+	GetComponents<UStaticMeshComponent*>(_allMeshes);
+	for (UStaticMeshComponent* mesh : _allMeshes)
 	{
 		if (mesh)
 		{
 			roomBox += mesh->Bounds.GetBox();
 		}
 	}
+	roomBox = roomBox.BuildAABB(roomBox.GetCenter(), roomBox.GetExtent() - FVector(15.0f));
 
 	if (roomBox.IsValid)
 	{
-		DrawDebugBox(GetWorld(), roomBox.GetCenter(), roomBox.GetExtent(), FColor::Red, true, 10.0f, 0, 5.0f);
+		DrawDebugBox(GetWorld(), roomBox.GetCenter(), roomBox.GetExtent(), FColor::Red, false, 1.0f, 0, 5.0f);
 	}
 }
 
 void ARoom::RemoveDoor(TObjectPtr<ADoor> _door)
 {
-	/*_door->SetActorHiddenInGame(true);
-	_door->SetActorEnableCollision(false);
-	_door->SetIsAvailable(false);*/
 	doorsInRoom.Remove(_door);
 	_door->Destroy();
 }
@@ -109,4 +108,18 @@ TObjectPtr<ADoor> ARoom::GetRandomAvailableDoor()
 	}
 	const int _randIndex = UKML::RandomIntegerInRange(0, _allAvailableDoors.Num() - 1);
 	return _allAvailableDoors[_randIndex];
+}
+
+TArray<TObjectPtr<ADoor>> ARoom::GetAllAvailablesDoors()
+{
+	TArray<TObjectPtr<ADoor>> _allAvailableDoors;
+	for (TObjectPtr<ADoor> _door : doorsInRoom)
+	{
+		if (_door && _door->GetIsAvailable())
+		{
+			_allAvailableDoors.Add(_door);
+		}
+	}
+
+	return _allAvailableDoors;
 }

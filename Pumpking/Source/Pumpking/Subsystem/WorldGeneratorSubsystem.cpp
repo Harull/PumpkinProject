@@ -32,7 +32,7 @@ TObjectPtr<ARoom> UWorldGeneratorSubsystem::GenerateNewRoom(const FVector& _posi
 		return nullptr;
 	}
 	allRooms.Add(_newRoom);
-
+	generatedRoomCount++;
 	return _newRoom;
 }
 
@@ -51,29 +51,25 @@ bool UWorldGeneratorSubsystem::ComputeNewPosForRoom(const FVector& _currentDoorP
 	FQuat _newRoomQuat = _deltaQuat * _newRoom->GetActorQuat();
 	_newRoom->SetActorRotation(_newRoomQuat);
 
-	_newRoom->SetActorLocation(_currentDoorPos + _direction * _newRoom->GetDistanceWithDoor(_door));
+	const FVector& _localDoorPos = _newRoom->GetActorLocation() - _door->GetActorLocation();
+	const FVector& _newDoorLoc = _currentDoorPos + _direction;
+	_newRoom->SetActorLocation(_newDoorLoc + _localDoorPos);
 
 	_newRoom->ComputeCollision();
-	//bool _shouldBeDeleted = false;
-	//for (ARoom* _currentRoom : allRooms)
-	//{
-	//	if (_newRoom == _currentRoom)
-	//		continue;
-
-	//	if (_newRoom->GetActorLocation().Equals(_currentRoom->GetActorLocation(), 0.0001))
-	//	{
-	//		LOG(_newRoom->GetName() + " Destroyed");
-	//		_shouldBeDeleted = true;
-	//	}
-	//}
-	//if (_shouldBeDeleted)
-	//{
-	//	//allRooms.Remove(_newRoom);
-	//	_newRoom->Destroy();
-	//	return false;
-	//}
-
-	_newRoom->RemoveDoor(_door);
+	FBox _currentRoomCollision = _newRoom->GetRoomCollision();
+	for (ARoom* _room : allRooms)
+	{
+		if (_newRoom == _room) continue;
+		FBox _roomCollision = _room->GetRoomCollision();
+		if (_currentRoomCollision.Intersect(_roomCollision))
+		{
+			allRooms.Remove(_newRoom);
+			_newRoom->Destroy();
+			return false;
+		}
+	}
+	_door->SetIsConnected(true);
+	allConnectedDoor.Add(_door);
 	return true;
 }
 
@@ -93,7 +89,43 @@ void UWorldGeneratorSubsystem::GenerateFirstRoom()
 		canGenerate = false;
 		return;
 	}
+	_room->ComputeCollision();
 	generatedRoomCount++;
+}
+
+void UWorldGeneratorSubsystem::GenerateAllRooms()
+{
+	while (canGenerate && (generatedRoomCount < data->maximumRoomCount))
+	{
+		TObjectPtr<ARoom> _room = GetRandomRoomWithAvailableDoor();
+		if (!_room) break;
+
+		TObjectPtr<ADoor> _door = _room->GetRandomAvailableDoor();
+		if (!_door) continue;
+
+		TObjectPtr<ARoom> _newRoom = GenerateNewRoom(_door->GetActorLocation());
+		if (!_newRoom) continue;
+
+		bool _isValid = ComputeNewPosForRoom(_door->GetActorLocation(), _door->GetActorForwardVector(), _newRoom);
+		if (!_isValid)
+			continue;
+		_door->SetIsConnected(true);
+		allConnectedDoor.Add(_door);
+	}
+}
+
+void UWorldGeneratorSubsystem::OccludeAvailablesDoors()
+{
+	for (ARoom* _room : allRooms)
+	{
+		if (!_room->HasAvailableDoor()) continue;
+
+		for (ADoor* _door : _room->GetAllAvailablesDoors())
+		{
+			_door->SetIsCondamned(true);
+			allOccludedDoors.Add(_door);
+		}
+	}
 }
 
 TObjectPtr<ARoom> UWorldGeneratorSubsystem::GetRandomRoomWithAvailableDoor()
@@ -116,30 +148,54 @@ TObjectPtr<ARoom> UWorldGeneratorSubsystem::GetRandomRoomWithAvailableDoor()
 	return _roomsWithAvailablesDoors[_randIndex];
 }
 
+void UWorldGeneratorSubsystem::Multi_UpdateAllDoor_Implementation(const TArray<ADoor*>& _occludedDoor, const TArray<ADoor*>& _connectedDoors, TSubclassOf<AActor> _occuldedDoorPreset)
+{
+	if (!IS_SELF(GetWorld()->GetFirstPlayerController()->GetPawn())) return;
+	for (ADoor* _door : _occludedDoor)
+	{
+		FActorSpawnParameters _param;
+		_param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		GetWorld()->SpawnActor<AActor>(_occuldedDoorPreset, _door->GetActorLocation(), _door->GetActorRotation(), _param);
+		_door->Destroy();
+	}
+	for (ADoor* _door : _connectedDoors)
+	{
+		_door->Destroy();
+	}
+}
+
+void UWorldGeneratorSubsystem::Multi_SetAllActorLocation_Implementation(const FVector& _newLoc)
+{
+	GetWorld()->GetFirstPlayerController()->GetPawn()->SetActorLocation(_newLoc);
+}
+
+void UWorldGeneratorSubsystem::UpdateAllDoors()
+{
+	for (ADoor* _door : allConnectedDoor)
+	{
+		if (!IsValid(_door)) continue;
+		_door->Destroy();
+	}
+	for (ADoor* _door : allOccludedDoors)
+	{
+		if (!IsValid(_door)) continue;
+		FActorSpawnParameters _param;
+		_param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		GetWorld()->SpawnActor<AActor>(data->occludedDoor, _door->GetActorLocation(), _door->GetActorRotation(), _param);
+		_door->Destroy();
+	}
+	allOccludedDoors.Empty();
+	allConnectedDoor.Empty();
+}
+
 void UWorldGeneratorSubsystem::GenerateWorld()
 {
 	if (!data) return;
 	GenerateFirstRoom();
 	if (!canGenerate) return;
-
-	while (canGenerate && (generatedRoomCount < data->maximumRoomCount))
-	{
-		TObjectPtr<ARoom> _room = GetRandomRoomWithAvailableDoor();
-		if (!_room) break;
-
-		TObjectPtr<ADoor> _door = _room->GetRandomAvailableDoor();
-		if (!_door) continue;
-
-		TObjectPtr<ARoom> _newRoom = GenerateNewRoom(_door->GetActorLocation());
-		if (!_newRoom) continue;
-
-		//_door->SetIsConnected(true);
-		bool _isValid = ComputeNewPosForRoom(_door->GetActorLocation(), _door->GetActorForwardVector(), _newRoom);
-		if (!_isValid)
-			continue;
-
-		_room->RemoveDoor(_door);
-
-		generatedRoomCount++;
-	}
+	GenerateAllRooms();
+	OccludeAvailablesDoors();
+	UpdateAllDoors();
+	FTimerHandle _timer;
+	Multi_SetAllActorLocation(allRooms[0]->GetActorLocation() + FVector(0.0f, 0.0f, 100.0f));
 }

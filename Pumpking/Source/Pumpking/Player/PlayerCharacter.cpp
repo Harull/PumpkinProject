@@ -23,6 +23,7 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	JumpMaxCount = 15;
 	if (SERVER)
 		LOG("Server");
 	else
@@ -36,22 +37,12 @@ void APlayerCharacter::BeginPlay()
 		}
 	}
 
-	if (SERVER && wantToGenerate)
+	if ((SERVER && SELF) && wantToGenerate)
 	{
-		FTimerHandle _timer;
-		TIMER(GetWorld(), _timer, { TObjectPtr<UWorldGeneratorSubsystem> _sub = GetWorld()->GetSubsystem<UWorldGeneratorSubsystem>();
-		if (_sub)
-		{
-			_sub->SetDataAsset(worldGenDataAsset);
-			_sub->GenerateWorld();
-		} }, 0.5f);
-	}
-	/*TObjectPtr<UWorldGeneratorSubsystem> _sub = GetWorld()->GetSubsystem<UWorldGeneratorSubsystem>();
-	if (_sub)
-	{
+		TObjectPtr<UWorldGeneratorSubsystem> _sub = GetWorld()->GetSubsystem<UWorldGeneratorSubsystem>();
 		_sub->SetDataAsset(worldGenDataAsset);
 		_sub->GenerateWorld();
-	}*/
+	}
 }
 
 // Called every frame

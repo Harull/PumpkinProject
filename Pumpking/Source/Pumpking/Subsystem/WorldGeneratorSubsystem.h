@@ -26,7 +26,7 @@ class PUMPKING_API UWorldGeneratorSubsystem : public UWorldSubsystem
 	UPROPERTY(EditAnywhere) TObjectPtr<UWorldGeneratorDataAsset> data = nullptr;
 
 public:
-	FORCEINLINE void SetDataAsset(TObjectPtr<UWorldGeneratorDataAsset> _data) { data = _data; }
+	UFUNCTION(BlueprintCallable) FORCEINLINE void SetDataAsset(UWorldGeneratorDataAsset* _data) { data = _data; }
 
 private:
 	TObjectPtr<ARoom> GenerateNewRoom(const FVector& _position);
@@ -39,6 +39,7 @@ private:
 	UFUNCTION(NetMulticast, Reliable) void Multi_SetAllActorLocation(const FVector& _newLoc);
 	UFUNCTION(NetMulticast, Reliable) void Multi_UpdateAllDoor(const TArray<ADoor*>& _occludedDoor, const TArray<ADoor*>& _connectedDoors, TSubclassOf<AActor> _occuldedDoorPreset);
 	void UpdateAllDoors();
+
 public:
-	void GenerateWorld();
+	UFUNCTION(BlueprintCallable) void GenerateWorld();
 };

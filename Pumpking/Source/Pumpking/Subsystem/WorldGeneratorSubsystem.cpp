@@ -140,7 +140,13 @@ TObjectPtr<ARoom> UWorldGeneratorSubsystem::GetRandomRoomWithAvailableDoor()
 
 void UWorldGeneratorSubsystem::Multi_SetAllActorLocation_Implementation(const FVector& _newLoc)
 {
-	GetWorld()->GetFirstPlayerController()->GetPawn()->SetActorLocation(_newLoc);
+	UWorld* _world = GetWorld();
+	if (!_world) return;
+	APlayerController* _controller = _world->GetFirstPlayerController();
+	if (!_controller) return;
+	APawn* _pawn = _controller->GetPawn();
+	if (!_pawn) return;
+	_pawn->SetActorLocation(_newLoc);
 }
 
 void UWorldGeneratorSubsystem::UpdateAllDoors()
@@ -162,6 +168,11 @@ void UWorldGeneratorSubsystem::UpdateAllDoors()
 	allConnectedDoor.Empty();
 }
 
+FVector UWorldGeneratorSubsystem::GetNewPos()
+{
+	return allRooms[0]->GetActorLocation() + FVector(0.0f, 0.0f, 100.0f);
+}
+
 void UWorldGeneratorSubsystem::GenerateWorld()
 {
 	if (!data) return;
@@ -171,5 +182,5 @@ void UWorldGeneratorSubsystem::GenerateWorld()
 	OccludeAvailablesDoors();
 	UpdateAllDoors();
 	FTimerHandle _timer;
-	Multi_SetAllActorLocation(allRooms[0]->GetActorLocation() + FVector(0.0f, 0.0f, 100.0f));
+	//Multi_SetAllActorLocation(allRooms[0]->GetActorLocation() + FVector(0.0f, 0.0f, 100.0f));
 }

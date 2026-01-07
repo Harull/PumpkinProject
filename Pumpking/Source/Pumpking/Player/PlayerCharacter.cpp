@@ -40,12 +40,18 @@ void APlayerCharacter::BeginPlay()
 		_sub->SetDataAsset(worldGenDataAsset);
 		_sub->GenerateWorld();
 	}
+
+	if (!SERVER)
+	{
+	}
 }
 
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (!IsValid(this)) return;
+	if (!IsLocallyControlled()) return;
 	if (SERVER)
 		Multi_ReplicatePosition(GetActorLocation(), GetActorRotation());
 	else
@@ -90,6 +96,18 @@ void APlayerCharacter::Rotate(const FInputActionValue& _value)
 void APlayerCharacter::Jumping()
 {
 	Jump();
+}
+
+void APlayerCharacter::Server_AskForNewPos_Implementation(APlayerCharacter* _player)
+{
+	TObjectPtr<UWorldGeneratorSubsystem> _sub = GetWorld()->GetSubsystem<UWorldGeneratorSubsystem>();
+	if (!_sub) return;
+	Multi_SetNewPos(_player, _sub->GetNewPos());
+}
+
+void APlayerCharacter::Multi_SetNewPos_Implementation(APlayerCharacter* _player, const FVector& _newPos)
+{
+	_player->SetActorLocation(_newPos);
 }
 
 void APlayerCharacter::ToggleTchat()

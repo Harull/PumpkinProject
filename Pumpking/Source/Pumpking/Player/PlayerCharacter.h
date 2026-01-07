@@ -56,5 +56,8 @@ private:
 	UFUNCTION(Server, Reliable) void Server_ReplicateAnim(const FVector2D& _inputValue);
 	UFUNCTION(NetMulticast, Reliable) void Multi_ReplicateAnim(const FVector2D& _inputValue);
 
+	UFUNCTION(Server, Reliable) void Server_AskForNewPos(APlayerCharacter* _player);
+	UFUNCTION(NetMulticast, Reliable) void Multi_SetNewPos(APlayerCharacter* _player, const FVector& _newPos);
+
 	void ToggleTchat();
 };

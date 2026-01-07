@@ -39,4 +39,5 @@ private:
 
 public:
 	UFUNCTION(BlueprintCallable) void GenerateWorld();
+	FVector GetNewPos();
 };

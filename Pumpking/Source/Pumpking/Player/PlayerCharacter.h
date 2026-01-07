@@ -29,6 +29,7 @@ class PUMPKING_API APlayerCharacter : public ACharacter
 	UPROPERTY(EditAnywhere) TObjectPtr<UInputAction> moveAction = nullptr;
 	UPROPERTY(EditAnywhere) TObjectPtr<UInputAction> jumpAction = nullptr;
 	UPROPERTY(EditAnywhere) TObjectPtr<UInputAction> rotateAction = nullptr;
+	UPROPERTY(EditAnywhere) TObjectPtr<UInputAction> openTchatAction = nullptr;
 	UPROPERTY(EditAnywhere) bool wantToGenerate = false;
 
 	//Anim
@@ -54,4 +55,6 @@ private:
 	UFUNCTION(NetMulticast, Reliable) void Multi_ReplicatePosition(const FVector& _position, const FRotator& _rotation);
 	UFUNCTION(Server, Reliable) void Server_ReplicateAnim(const FVector2D& _inputValue);
 	UFUNCTION(NetMulticast, Reliable) void Multi_ReplicateAnim(const FVector2D& _inputValue);
+
+	void ToggleTchat();
 };

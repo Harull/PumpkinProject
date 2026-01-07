@@ -9,16 +9,6 @@
 TObjectPtr<ARoom> UWorldGeneratorSubsystem::GenerateNewRoom(const FVector& _position)
 {
 	TSubclassOf<ARoom> _roomType = GetRandomRoomPreset();
-	if (lastPreset == nullptr)
-		lastPreset = _roomType;
-	if (data->allRoomsTypes.Num() > 1)
-	{
-		while (_roomType == lastPreset)
-		{
-			_roomType = GetRandomRoomPreset();
-		}
-	}
-	lastPreset = _roomType;
 	if (!_roomType)
 	{
 		canGenerate = false;
@@ -146,22 +136,6 @@ TObjectPtr<ARoom> UWorldGeneratorSubsystem::GetRandomRoomWithAvailableDoor()
 	const int _randIndex = UKML::RandomIntegerInRange(0, _roomsWithAvailablesDoors.Num() - 1);
 
 	return _roomsWithAvailablesDoors[_randIndex];
-}
-
-void UWorldGeneratorSubsystem::Multi_UpdateAllDoor_Implementation(const TArray<ADoor*>& _occludedDoor, const TArray<ADoor*>& _connectedDoors, TSubclassOf<AActor> _occuldedDoorPreset)
-{
-	if (!IS_SELF(GetWorld()->GetFirstPlayerController()->GetPawn())) return;
-	for (ADoor* _door : _occludedDoor)
-	{
-		FActorSpawnParameters _param;
-		_param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		GetWorld()->SpawnActor<AActor>(_occuldedDoorPreset, _door->GetActorLocation(), _door->GetActorRotation(), _param);
-		_door->Destroy();
-	}
-	for (ADoor* _door : _connectedDoors)
-	{
-		_door->Destroy();
-	}
 }
 
 void UWorldGeneratorSubsystem::Multi_SetAllActorLocation_Implementation(const FVector& _newLoc)

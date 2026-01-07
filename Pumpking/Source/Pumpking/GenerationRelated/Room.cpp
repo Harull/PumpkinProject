@@ -34,10 +34,6 @@ void ARoom::RetrieveAllDoors()
 	GetAllChildActors(_outActors);
 	for (AActor* _actor : _outActors)
 	{
-		if (TObjectPtr<UChildActorComponent> _childActorCmpnt = Cast<UChildActorComponent>(_actor)) {
-			//UKismetSystemLibrary::PrintString(this, "Found a CHILD ACTOR COMPONENT int the children of the actor");
-		}
-
 		if (TObjectPtr<ADoor> _door = Cast<ADoor>(_actor)) {
 			//UKismetSystemLibrary::PrintString(this, "Found a DOOR ACTOR in the children of the actor");
 			doorsInRoom.Add(_door);

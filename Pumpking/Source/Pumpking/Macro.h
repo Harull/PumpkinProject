@@ -34,7 +34,7 @@
 
 // ======== LOGGING ========
 #define LOG_CUSTOM(message, color) UKSL::PrintString(this, FPaths::GetBaseFilename(TEXT(__FILE__)) + "(" + FString::FromInt(__LINE__) + ")=> " + message, true, false, FColor::color, 20.0f)
-#define LOG_CUSTOM_TIME(message, color, duration) UKSL::PrintString(this, FPaths::GetBaseFilename(TEXT(__FILE__)) + "(" + FString::FromInt(__LINE__) + ")=> " + message, true, false, FColor::color, duration)
+#define LOG_CUSTOM_TIME(message, color, duration) UKSL::PrintString(this, FPaths::GetBaseFilename(TEXT(__FILE__)) + "(" + FString::FromInt(__LINE__) + ")=> " + message, true, false, color, duration)
 #define LOG(message) LOG_CUSTOM(message, Green)
 #define LOG_WARN(message) LOG_CUSTOM(message, Yellow)
 #define LOG_ERROR(message) LOG_CUSTOM(message, Red)

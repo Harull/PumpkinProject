@@ -6,6 +6,7 @@
 #include <GameFramework/SpringArmComponent.h>
 #include "Camera/CameraComponent.h"
 #include "Macro.h"
+#include "PlayerController/PlayerCharacterController.h"
 #include <Subsystem/WorldGeneratorSubsystem.h>
 
 APlayerCharacter::APlayerCharacter()
@@ -24,21 +25,17 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	JumpMaxCount = 15;
-	if (SERVER)
-		LOG("Server");
-	else
-		LOG("Client");
 	if (ULocalPlayer* _localPlayer = Cast<ULocalPlayer>(GetWorld()->GetFirstLocalPlayerFromController()))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* _inputSystem = _localPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
 		{
 			_inputSystem->AddMappingContext(mapping, 0.0f);
-			LOG("AddMappingContext");
 		}
 	}
 
 	if ((SERVER && SELF) && wantToGenerate)
 	{
+		FTimerHandle _timer;
 		TObjectPtr<UWorldGeneratorSubsystem> _sub = GetWorld()->GetSubsystem<UWorldGeneratorSubsystem>();
 		_sub->SetDataAsset(worldGenDataAsset);
 		_sub->GenerateWorld();
@@ -64,6 +61,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	_input->BindAction(moveAction, ETriggerEvent::Completed, this, &APlayerCharacter::Movement);
 	_input->BindAction(jumpAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Jumping);
 	_input->BindAction(rotateAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Rotate);
+	_input->BindAction(openTchatAction, ETriggerEvent::Started, this, &APlayerCharacter::ToggleTchat);
 }
 
 void APlayerCharacter::Movement(const FInputActionValue& _value)
@@ -92,6 +90,14 @@ void APlayerCharacter::Rotate(const FInputActionValue& _value)
 void APlayerCharacter::Jumping()
 {
 	Jump();
+}
+
+void APlayerCharacter::ToggleTchat()
+{
+	if (CAST(APlayerCharacterController, _playerController, GetWorld()->GetFirstPlayerController()))
+	{
+		_playerController->ToggleTchat();
+	}
 }
 
 void APlayerCharacter::Server_ReplicatePosition_Implementation(const FVector& _position, const FRotator& _rotation)

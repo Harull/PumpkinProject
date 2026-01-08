@@ -11,6 +11,7 @@ class UInputMappingContext;
 class UInputAction;
 class USpringArmComponent;
 class UCameraComponent;
+class UFlashLightComponent;
 struct FInputActionValue;
 
 UCLASS()
@@ -30,6 +31,7 @@ class PUMPKING_API APlayerCharacter : public ACharacter
 	UPROPERTY(EditAnywhere) TObjectPtr<UInputAction> jumpAction = nullptr;
 	UPROPERTY(EditAnywhere) TObjectPtr<UInputAction> rotateAction = nullptr;
 	UPROPERTY(EditAnywhere) TObjectPtr<UInputAction> openTchatAction = nullptr;
+	UPROPERTY(EditAnywhere) TObjectPtr<UInputAction> flashLightAction = nullptr;
 	UPROPERTY(EditAnywhere) bool wantToGenerate = false;
 
 	//Anim
@@ -37,6 +39,9 @@ class PUMPKING_API APlayerCharacter : public ACharacter
 
 	//Data
 	UPROPERTY(EditAnywhere) TObjectPtr<UWorldGeneratorDataAsset> worldGenDataAsset = nullptr;
+
+	//Ability
+	UPROPERTY(EditAnywhere) TObjectPtr<UFlashLightComponent> flashLightComponent = nullptr;
 
 public:
 	APlayerCharacter();

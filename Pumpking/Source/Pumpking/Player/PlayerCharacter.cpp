@@ -8,6 +8,7 @@
 #include "Macro.h"
 #include "PlayerController/PlayerCharacterController.h"
 #include <Subsystem/WorldGeneratorSubsystem.h>
+#include "Player/Component/FlashLightComponent.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -16,9 +17,13 @@ APlayerCharacter::APlayerCharacter()
 	meshFps = CreateDefaultSubobject<USkeletalMeshComponent>("MeshFps");
 	sprintArm = CreateDefaultSubobject<USpringArmComponent>("SprintArm");
 	camera = CreateDefaultSubobject<UCameraComponent>("Camera");
+	flashLightComponent = CreateDefaultSubobject<UFlashLightComponent>("flash Light Component");
+
 	meshFps->SetupAttachment(GetMesh());
 	sprintArm->SetupAttachment(GetMesh(), FName("head"));
 	camera->SetupAttachment(sprintArm);
+
+	AddOwnedComponent(flashLightComponent);
 }
 
 void APlayerCharacter::BeginPlay()
@@ -68,6 +73,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	_input->BindAction(jumpAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Jumping);
 	_input->BindAction(rotateAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Rotate);
 	_input->BindAction(openTchatAction, ETriggerEvent::Started, this, &APlayerCharacter::ToggleTchat);
+	_input->BindAction(flashLightAction, ETriggerEvent::Started, flashLightComponent.Get(), &UFlashLightComponent::ActivateFlashLight);
+	_input->BindAction(flashLightAction, ETriggerEvent::Completed , flashLightComponent.Get(), &UFlashLightComponent::DesactivateFlashLight);
 }
 
 void APlayerCharacter::Movement(const FInputActionValue& _value)

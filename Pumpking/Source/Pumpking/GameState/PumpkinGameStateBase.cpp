@@ -10,9 +10,11 @@ void APumpkinGameStateBase::Multi_SendMessage_Implementation(const FText& _text,
 	for (APlayerState* _playerState : PlayerArray)
 	{
 		if (!_playerState) continue;
-		LOG(_playerState->GetName());
 		if (CAST(APlayerCharacterController, _playerController, _playerState->GetPlayerController()))
 		{
+			const FString& _playerName = _playerState->GetName();
+			FText _newText = _text;
+			_newText = FText::FromString(_playerName + " :\r" + _text.ToString());
 			_playerController->ReceiveTchatMessage(_text, _sender);
 		}
 	}

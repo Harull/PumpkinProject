@@ -43,7 +43,7 @@ bool UWorldGeneratorSubsystem::ComputeNewPosForRoom(const FVector& _currentDoorP
 
 	const FVector& _localDoorPos = _newRoom->GetActorLocation() - _door->GetActorLocation();
 	const FVector& _newDoorLoc = _currentDoorPos + _direction;
-	_newRoom->SetActorLocation(_currentDoorPos + _localDoorPos);
+	_newRoom->SetActorLocation(_newDoorLoc + _localDoorPos);
 
 	_newRoom->ComputeCollision();
 	FBox _currentRoomCollision = _newRoom->GetRoomCollision();

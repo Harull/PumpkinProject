@@ -4,6 +4,7 @@
 #include "Door.h"
 #include <Kismet/KismetSystemLibrary.h>
 #include <Macro.h>
+#include <Subsystem/RoomSubsystem.h>
 
 // Sets default values
 ARoom::ARoom()
@@ -23,6 +24,12 @@ void ARoom::OnConstruction(const FTransform& Transform)
 void ARoom::BeginPlay()
 {
 	Super::BeginPlay();
+	GetWorld()->GetSubsystem<URoomSubsystem>()->AddRoom(this);
+}
+
+void ARoom::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	GetWorld()->GetSubsystem<URoomSubsystem>()->RemoveRoom(this);
 }
 
 void ARoom::RetrieveAllDoors()
@@ -35,7 +42,6 @@ void ARoom::RetrieveAllDoors()
 	for (AActor* _actor : _outActors)
 	{
 		if (TObjectPtr<ADoor> _door = Cast<ADoor>(_actor)) {
-			//UKismetSystemLibrary::PrintString(this, "Found a DOOR ACTOR in the children of the actor");
 			doorsInRoom.Add(_door);
 		}
 	}
@@ -69,12 +75,26 @@ void ARoom::ComputeCollision()
 	{
 		DrawDebugBox(GetWorld(), roomBox.GetCenter(), roomBox.GetExtent(), FColor::Red, false, 1.0f, 0, 5.0f);
 	}
+	allMeshes = _allMeshes;
 }
 
 void ARoom::RemoveDoor(TObjectPtr<ADoor> _door)
 {
 	doorsInRoom.Remove(_door);
 	_door->Destroy();
+}
+
+void ARoom::ChangeRoomState(const bool _enabled)
+{
+	if (allMeshes.IsEmpty()) return;
+	const int _size = allMeshes.Num();
+	for (int _index = 0; _index < _size; _index++)
+	{
+		UStaticMeshComponent* _mesh = allMeshes[_index];
+		if (!_mesh) continue;
+		_mesh->SetCollisionEnabled(_enabled ? ECollisionEnabled::QueryAndPhysics : ECollisionEnabled::NoCollision);
+		_mesh->SetHiddenInGame(!_enabled);
+	}
 }
 
 TObjectPtr<ADoor> ARoom::GetFirstAvailableDoor()

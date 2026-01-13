@@ -18,6 +18,9 @@ class PUMPKING_API APlayerCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere) TSubclassOf<UUserWidget> loadingSceenType = nullptr;
+	UPROPERTY(EditAnywhere) TObjectPtr<UUserWidget> loadingSceen = nullptr;
+
 	UPROPERTY(EditAnywhere) TObjectPtr<USkeletalMeshComponent> meshFps = nullptr;
 
 	//Camera
@@ -39,9 +42,17 @@ class PUMPKING_API APlayerCharacter : public ACharacter
 	UPROPERTY(EditAnywhere) TObjectPtr<UWorldGeneratorDataAsset> worldGenDataAsset = nullptr;
 
 public:
+	UFUNCTION(Server, Reliable) void Server_AskForNewPos();
 	APlayerCharacter();
 
+	UFUNCTION(Server, Reliable) void Server_CloseLoadingScreen();
+	UFUNCTION(Server, Reliable) void Server_OpenLoadingScreen();
 protected:
+	UFUNCTION(NetMulticast, Reliable) void Multi_CloseLoadingScreen(APlayerCharacter* _player);
+	UFUNCTION(NetMulticast, Reliable) void Multi_OpenLoadingScreen(APlayerCharacter* _player);
+
+	void CloseLoadingScreen();
+	void OpenLoadingScreen();
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -56,7 +67,6 @@ private:
 	UFUNCTION(Server, Reliable) void Server_ReplicateAnim(const FVector2D& _inputValue);
 	UFUNCTION(NetMulticast, Reliable) void Multi_ReplicateAnim(const FVector2D& _inputValue);
 
-	UFUNCTION(Server, Reliable) void Server_AskForNewPos(APlayerCharacter* _player);
 	UFUNCTION(NetMulticast, Reliable) void Multi_SetNewPos(APlayerCharacter* _player, const FVector& _newPos);
 
 	void ToggleTchat();

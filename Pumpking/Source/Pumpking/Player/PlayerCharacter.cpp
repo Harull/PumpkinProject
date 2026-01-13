@@ -21,6 +21,42 @@ APlayerCharacter::APlayerCharacter()
 	camera->SetupAttachment(sprintArm);
 }
 
+void APlayerCharacter::Server_OpenLoadingScreen_Implementation()
+{
+	Multi_OpenLoadingScreen(this);
+}
+
+void APlayerCharacter::Server_CloseLoadingScreen_Implementation()
+{
+	Multi_CloseLoadingScreen(this);
+}
+
+void APlayerCharacter::Multi_CloseLoadingScreen_Implementation(APlayerCharacter* _player)
+{
+	if (!SELF) return;
+	LOG("Player Close");
+	_player->CloseLoadingScreen();
+}
+
+void APlayerCharacter::Multi_OpenLoadingScreen_Implementation(APlayerCharacter* _player)
+{
+	_player->OpenLoadingScreen();
+}
+
+void APlayerCharacter::CloseLoadingScreen()
+{
+	if (!SELF) return;
+	if (!loadingSceen) return;
+	loadingSceen->RemoveFromViewport();
+}
+
+void APlayerCharacter::OpenLoadingScreen()
+{
+	if (!loadingSceenType) return;
+	loadingSceen = CreateWidget(GetWorld(), loadingSceenType);
+	loadingSceen->AddToViewport();
+}
+
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -31,18 +67,6 @@ void APlayerCharacter::BeginPlay()
 		{
 			_inputSystem->AddMappingContext(mapping, 0.0f);
 		}
-	}
-
-	if ((SERVER && SELF) && wantToGenerate)
-	{
-		FTimerHandle _timer;
-		TObjectPtr<UWorldGeneratorSubsystem> _sub = GetWorld()->GetSubsystem<UWorldGeneratorSubsystem>();
-		_sub->SetDataAsset(worldGenDataAsset);
-		_sub->GenerateWorld();
-	}
-
-	if (!SERVER)
-	{
 	}
 }
 
@@ -98,15 +122,16 @@ void APlayerCharacter::Jumping()
 	Jump();
 }
 
-void APlayerCharacter::Server_AskForNewPos_Implementation(APlayerCharacter* _player)
+void APlayerCharacter::Server_AskForNewPos_Implementation()
 {
 	TObjectPtr<UWorldGeneratorSubsystem> _sub = GetWorld()->GetSubsystem<UWorldGeneratorSubsystem>();
 	if (!_sub) return;
-	Multi_SetNewPos(_player, _sub->GetNewPos());
+	Multi_SetNewPos(this, _sub->GetNewPos());
 }
 
 void APlayerCharacter::Multi_SetNewPos_Implementation(APlayerCharacter* _player, const FVector& _newPos)
 {
+	if (!SELF) return;
 	_player->SetActorLocation(_newPos);
 }
 

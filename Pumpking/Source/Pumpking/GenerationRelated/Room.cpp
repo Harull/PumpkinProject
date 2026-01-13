@@ -32,6 +32,20 @@ void ARoom::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	GetWorld()->GetSubsystem<URoomSubsystem>()->RemoveRoom(this);
 }
 
+void ARoom::Multi_UpdateRoomState_Implementation(ARoom* _room, bool _newState)
+{
+	const int _size = allMeshes.Num();
+	for (int _index = 0; _index < _size; _index++)
+	{
+		UStaticMeshComponent* _mesh = _room->allMeshes[_index];
+		if (!_mesh) continue;
+
+		_mesh->SetCollisionEnabled(_newState ? ECollisionEnabled::QueryAndPhysics : ECollisionEnabled::NoCollision);
+		_mesh->SetHiddenInGame(!_newState);
+	}
+	_room->isEnable = _newState;
+}
+
 void ARoom::RetrieveAllDoors()
 {
 	doorsInRoom.Empty();
@@ -62,14 +76,14 @@ void ARoom::ComputeCollision()
 {
 	TArray<UStaticMeshComponent*> _allMeshes;
 	GetComponents<UStaticMeshComponent*>(_allMeshes);
-	for (UStaticMeshComponent* mesh : _allMeshes)
+	for (UStaticMeshComponent* _mesh : _allMeshes)
 	{
-		if (mesh)
+		if (_mesh)
 		{
-			roomBox += mesh->Bounds.GetBox();
+			roomBox += _mesh->Bounds.GetBox();
 		}
 	}
-	roomBox = roomBox.BuildAABB(roomBox.GetCenter(), roomBox.GetExtent() - FVector(15.0f));
+	roomBox = roomBox.BuildAABB(roomBox.GetCenter(), roomBox.GetExtent() - FVector(5.0f));
 
 	if (roomBox.IsValid)
 	{
@@ -87,14 +101,18 @@ void ARoom::RemoveDoor(TObjectPtr<ADoor> _door)
 void ARoom::ChangeRoomState(const bool _enabled)
 {
 	if (allMeshes.IsEmpty()) return;
+	if (isEnable == _enabled) return;
+	Multi_UpdateRoomState(this, _enabled);
 	const int _size = allMeshes.Num();
 	for (int _index = 0; _index < _size; _index++)
 	{
 		UStaticMeshComponent* _mesh = allMeshes[_index];
 		if (!_mesh) continue;
+
 		_mesh->SetCollisionEnabled(_enabled ? ECollisionEnabled::QueryAndPhysics : ECollisionEnabled::NoCollision);
 		_mesh->SetHiddenInGame(!_enabled);
 	}
+	isEnable = _enabled;
 }
 
 TObjectPtr<ADoor> ARoom::GetFirstAvailableDoor()

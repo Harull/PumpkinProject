@@ -12,11 +12,12 @@ class PUMPKING_API URoomSubsystem : public UWorldSubsystem
 {
 	GENERATED_BODY()
 	UPROPERTY() TArray<TObjectPtr<ARoom>> allRooms = TArray<TObjectPtr<ARoom>>();
-	UPROPERTY() float maxDist = 5000.0f;
+	UPROPERTY() float maxDist = 4000.0f;
 
 	void Initialize(FSubsystemCollectionBase& _collection) override;
-	void UpdatelAllRooms();
+	bool IsRoomRelevantForPlayer(TObjectPtr<ARoom> _room, TObjectPtr<APawn> _pawn) const;
 public:
+	void UpdateRoomsForAllPlayers(TArray<TObjectPtr<APlayerState>> _players);
 	void AddRoom(TObjectPtr<ARoom> _newRoom);
 	void RemoveRoom(TObjectPtr<ARoom> _newRoom);
 };

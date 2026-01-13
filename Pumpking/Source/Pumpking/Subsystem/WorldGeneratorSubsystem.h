@@ -11,12 +11,11 @@ class ARoom;
 class ADoor;
 
 UCLASS(Blueprintable)
-class PUMPKING_API UWorldGeneratorSubsystem : public UWorldSubsystem
+class PUMPKING_API UWorldGeneratorSubsystem : public UTickableWorldSubsystem
 {
 	GENERATED_BODY()
-
 	UPROPERTY() int generatedRoomCount = 0;
-	UPROPERTY() bool canGenerate = true;
+	UPROPERTY() bool canGenerate = false;
 	UPROPERTY() TArray<TObjectPtr<ARoom>> allRooms = TArray<TObjectPtr<ARoom>>();
 	UPROPERTY() TArray<TObjectPtr<ADoor>> allConnectedDoor = TArray<TObjectPtr<ADoor>>();
 	UPROPERTY() TArray<TObjectPtr<ADoor>> allOccludedDoors = TArray<TObjectPtr<ADoor>>();
@@ -36,8 +35,10 @@ private:
 	TObjectPtr<ARoom> GetRandomRoomWithAvailableDoor();
 	UFUNCTION(NetMulticast, Reliable) void Multi_SetAllActorLocation(const FVector& _newLoc);
 	void UpdateAllDoors();
+	virtual TStatId GetStatId() const override;
 
 public:
+	virtual void Tick(float DeltaTime) override;
 	UFUNCTION(BlueprintCallable) void GenerateWorld();
 	FVector GetNewPos();
 };

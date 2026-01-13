@@ -15,6 +15,7 @@ class PUMPKING_API ARoom : public AActor
 
 private:
 	UPROPERTY(VisibleAnywhere) FBox roomBox;
+	UPROPERTY(EditAnywhere) bool isEnable = true;
 	UPROPERTY(VisibleAnywhere) TArray<TObjectPtr<ADoor>> doorsInRoom = {};
 	UPROPERTY(VisibleAnywhere) bool hasAvailableDoor = true;
 	UPROPERTY(VisibleAnywhere) TArray<TObjectPtr<UStaticMeshComponent>> allMeshes = {};
@@ -33,6 +34,8 @@ public:
 	FORCEINLINE TArray<TObjectPtr<ADoor>> GetAllDoors() const { return doorsInRoom; }
 	FORCEINLINE bool HasAvailableDoor() const { return hasAvailableDoor; }
 	FORCEINLINE FBox GetRoomCollision() const { return roomBox; }
+
+	UFUNCTION(NetMulticast, Reliable) void Multi_UpdateRoomState(ARoom* _room, bool _newState);
 
 public:
 	/// <summary>

@@ -13,7 +13,14 @@ UCLASS()
 class PUMPKING_API APumpkinGameStateBase : public AGameStateBase
 {
 	GENERATED_BODY()
+	UPROPERTY() FTimerHandle updateTimer;
 
 public:
 	UFUNCTION(NetMulticast, Reliable) void Multi_SendMessage(const FText& _text, APlayerState* _sender);
+	void SetOcclusionTimer();
+
+	void OpenLoadingScreen();
+protected:
+	void OnUpdateRoom();
+	virtual void BeginPlay() override;
 };

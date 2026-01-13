@@ -3,6 +3,7 @@
 #include "WorldGeneratorSubsystem.h"
 #include "Pumpking/GenerationRelated/Room.h"
 #include "Pumpking/GenerationRelated/Door.h"
+#include "Pumpking/GameState/PumpkinGameStateBase.h"
 #include "Engine/OverlapResult.h"
 #include <Macro.h>
 
@@ -74,9 +75,9 @@ TSubclassOf<ARoom> UWorldGeneratorSubsystem::GetRandomRoomPreset()
 void UWorldGeneratorSubsystem::GenerateFirstRoom()
 {
 	TObjectPtr<ARoom> _room = GenerateNewRoom(FVector::ZeroVector);
-	if (!_room)
+	if (_room)
 	{
-		canGenerate = false;
+		canGenerate = true;
 		return;
 	}
 	_room->ComputeCollision();
@@ -85,23 +86,29 @@ void UWorldGeneratorSubsystem::GenerateFirstRoom()
 
 void UWorldGeneratorSubsystem::GenerateAllRooms()
 {
-	while (canGenerate && (generatedRoomCount < data->maximumRoomCount))
+	if (!canGenerate) return;
+	if (generatedRoomCount >= data->maximumRoomCount)
 	{
-		TObjectPtr<ARoom> _room = GetRandomRoomWithAvailableDoor();
-		if (!_room) break;
-
-		TObjectPtr<ADoor> _door = _room->GetRandomAvailableDoor();
-		if (!_door) continue;
-
-		TObjectPtr<ARoom> _newRoom = GenerateNewRoom(_door->GetActorLocation());
-		if (!_newRoom) continue;
-
-		bool _isValid = ComputeNewPosForRoom(_door->GetActorLocation(), _door->GetActorForwardVector(), _newRoom);
-		if (!_isValid)
-			continue;
-		_door->SetIsConnected(true);
-		allConnectedDoor.Add(_door);
+		canGenerate = false;
+		OccludeAvailablesDoors();
+		UpdateAllDoors();
+		return;
 	}
+
+	TObjectPtr<ARoom> _room = GetRandomRoomWithAvailableDoor();
+	if (!_room) return;
+
+	TObjectPtr<ADoor> _door = _room->GetRandomAvailableDoor();
+	if (!_door) return;
+
+	TObjectPtr<ARoom> _newRoom = GenerateNewRoom(_door->GetActorLocation());
+	if (!_newRoom) return;
+
+	bool _isValid = ComputeNewPosForRoom(_door->GetActorLocation(), _door->GetActorForwardVector(), _newRoom);
+	if (!_isValid)
+		return;
+	_door->SetIsConnected(true);
+	allConnectedDoor.Add(_door);
 }
 
 void UWorldGeneratorSubsystem::OccludeAvailablesDoors()
@@ -166,6 +173,16 @@ void UWorldGeneratorSubsystem::UpdateAllDoors()
 	}
 	allOccludedDoors.Empty();
 	allConnectedDoor.Empty();
+
+	if (CAST(APumpkinGameStateBase, _gameState, GetWorld()->GetGameState()))
+	{
+		_gameState->SetOcclusionTimer();
+	}
+}
+
+TStatId UWorldGeneratorSubsystem::GetStatId() const
+{
+	return TStatId();
 }
 
 FVector UWorldGeneratorSubsystem::GetNewPos()
@@ -173,14 +190,19 @@ FVector UWorldGeneratorSubsystem::GetNewPos()
 	return allRooms[0]->GetActorLocation() + FVector(0.0f, 0.0f, 100.0f);
 }
 
+void UWorldGeneratorSubsystem::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	GenerateAllRooms();
+}
+
 void UWorldGeneratorSubsystem::GenerateWorld()
 {
 	if (!data) return;
+	if (CAST(APumpkinGameStateBase, _gameState, GetWorld()->GetGameState()))
+	{
+		if (!_gameState->HasAuthority()) return;
+		_gameState->OpenLoadingScreen();
+	}
 	GenerateFirstRoom();
-	if (!canGenerate) return;
-	GenerateAllRooms();
-	OccludeAvailablesDoors();
-	UpdateAllDoors();
-	FTimerHandle _timer;
-	//Multi_SetAllActorLocation(allRooms[0]->GetActorLocation() + FVector(0.0f, 0.0f, 100.0f));
 }

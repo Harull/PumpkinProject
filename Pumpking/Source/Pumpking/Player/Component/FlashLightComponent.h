@@ -16,6 +16,7 @@ class PUMPKING_API UFlashLightComponent : public UActorComponent
 	UPROPERTY(EditAnywhere) TObjectPtr<APlayerCharacter> character = nullptr;
 	UPROPERTY(EditAnywhere) TObjectPtr<ASpotLight> flashLight = nullptr;
 	UPROPERTY(EditAnywhere) bool isActivate = false;
+	UPROPERTY(EditAnywhere) bool useToggle = true;
 
 public:	
 	// Sets default values for this component's properties

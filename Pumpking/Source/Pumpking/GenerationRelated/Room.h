@@ -17,6 +17,7 @@ private:
 	UPROPERTY(VisibleAnywhere) FBox roomBox;
 	UPROPERTY(VisibleAnywhere) TArray<TObjectPtr<ADoor>> doorsInRoom = {};
 	UPROPERTY(VisibleAnywhere) bool hasAvailableDoor = true;
+	UPROPERTY(VisibleAnywhere) TArray<TObjectPtr<UStaticMeshComponent>> allMeshes = {};
 private:
 
 public:
@@ -25,6 +26,7 @@ public:
 protected:
 	virtual void OnConstruction(const FTransform& Transform) override;
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
 	UFUNCTION(BlueprintCallable) int GetDoorsCount() const { return doorsInRoom.Num(); }
@@ -44,6 +46,8 @@ public:
 	float GetDistanceWithDoor(const int _index);
 	void ComputeCollision();
 	void RemoveDoor(TObjectPtr<ADoor> _door);
+
+	void ChangeRoomState(const bool _enabled);
 
 	TObjectPtr<ADoor> GetFirstAvailableDoor();
 	TObjectPtr<ADoor> GetRandomAvailableDoor();

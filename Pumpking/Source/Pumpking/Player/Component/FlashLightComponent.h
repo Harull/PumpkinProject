@@ -17,6 +17,7 @@ class PUMPKING_API UFlashLightComponent : public UActorComponent
 	UPROPERTY(EditAnywhere) TObjectPtr<ASpotLight> flashLight = nullptr;
 	UPROPERTY(EditAnywhere) bool isActivate = false;
 	UPROPERTY(EditAnywhere) bool useToggle = true;
+	UPROPERTY(EditAnywhere) float flashLightSpeedRotation = 500.0f;
 
 public:	
 	// Sets default values for this component's properties
@@ -38,10 +39,10 @@ protected:
 	UFUNCTION(NetMulticast, Reliable) void Multi_ReplicateFlashLightPositionAndLocation(const FVector& _position, const FRotator& _rotation);
 
 
-
 public:
 	void ActivateFlashLight();
 	void DesactivateFlashLight();
+
 
 	
 };

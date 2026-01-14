@@ -41,14 +41,25 @@ void UFlashLightComponent::FlashLightMovement()
 {
 	if (!flashLight || !character)return;
 	if (!character->IsLocallyControlled())return;
-	flashLight->SetActorRotation(character->GetController()->GetControlRotation());
+	FRotator _current = flashLight->GetActorRotation();
+	FRotator _target = character->GetController()->GetControlRotation();
+	//float _yawDiff = character->GetController()->GetControlRotation() - flashLight->GetActorRotation();
+	//FRAME_LOG(FString::SanitizeFloat(_yawDiff));
+	//_yawDiff /= 360.0f;
+	//FRAME_LOG(FString::SanitizeFloat(_yawDiff)+ "/180");
+
+	float Angle = _current.Quaternion().AngularDistance(_target.Quaternion());
+	Angle = FMath::RadiansToDegrees(Angle);
+	FRAME_LOG(FString::SanitizeFloat(Angle));
+	float _newSpeed = flashLightSpeedRotation + flashLightSpeedRotation * Angle/ 90.0f;
+	FRAME_LOG(FString::SanitizeFloat(_newSpeed));
+	FRotator _newRot = FMath::RInterpConstantTo(_current, _target,DELTATIME, _newSpeed);
+	flashLight->SetActorRotation(_newRot);
 	flashLight->SetActorLocation(character->GetActorLocation());
+
 	if (flashLight)
 	{
-		if (character->SERVER)
-			Multi_ReplicateFlashLightPositionAndLocation(flashLight->GetActorLocation(), flashLight->GetActorRotation());
-		else
-			Server_ReplicateFlashLightPositionAndLocation(flashLight->GetActorLocation(), flashLight->GetActorRotation());
+		Server_ReplicateFlashLightPositionAndLocation(flashLight->GetActorLocation(), flashLight->GetActorRotation());
 	}
 }
 
@@ -71,13 +82,13 @@ void UFlashLightComponent::Server_SpawnFlashLight_Implementation()
 
 void UFlashLightComponent::Server_DespawnFlashLight_Implementation()
 {
-	Multi_SpawnFlashLight();
+	Multi_DespawnFlashLight();
 }
 
 void UFlashLightComponent::Multi_DespawnFlashLight_Implementation()
 {
-	if (!flashLight)return;
 	//LOG("DespawnFlashLight");
+	if (!flashLight)return;
 	flashLight->SetLifeSpan(0.1f);
 }
 
@@ -96,27 +107,18 @@ void UFlashLightComponent::ActivateFlashLight()
 	if (useToggle && isActivate)
 	{
 		isActivate = false;
-		if (character->SERVER)
-			Multi_DespawnFlashLight();
-		else
-			Server_DespawnFlashLight();
+		Server_DespawnFlashLight();
 		return;
 	}
 
-	isActivate = false;
-	if (character->SERVER)
-		Multi_SpawnFlashLight();
-	else
-		Server_SpawnFlashLight();
+	isActivate = true;
+	Server_SpawnFlashLight();
 }
 
 void UFlashLightComponent::DesactivateFlashLight()
 {
 	if (useToggle)return;
 	isActivate = false;
-	if (character->SERVER)
-		Multi_DespawnFlashLight();
-	else
-		Server_DespawnFlashLight();
+	Server_DespawnFlashLight();
 }
 

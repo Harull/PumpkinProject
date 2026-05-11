@@ -1,0 +1,20 @@
+<svg id='refresh_24' width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
+  <rect width='24' height='24' stroke='none' fill='none'/>
+
+  <g transform="matrix(1 0 0 1 12 12)">
+    <g>
+      <g transform="matrix(1 0 0 1 0 -4.49)">
+        <path
+          style="stroke: white; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none;"
+          transform="translate(-12, -7.51)"
+          d="M 20 11 C 19.49727616448037 7.382537335257956 16.635869270776933 4.548932968344978 13.01367064509484 4.081552500515029 C 9.391472019412745 3.6141720326850795 5.904508460002136 5.628631825002694 4.5000000000000036 8.999999999999993 M 4 5 L 4 9 L 8 9" />
+      </g>
+      <g transform="matrix(1 0 0 1 0 4.49)">
+        <path
+          style="stroke: white; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none;"
+          transform="translate(-12, -16.49)"
+          d="M 4 13 C 4.5027238355196335 16.617462664742042 7.364130729223072 19.451067031655022 10.986329354905166 19.91844749948497 C 14.608527980587258 20.385827967314917 18.09549153999787 18.3713681749973 19.5 15.000000000000002 M 20 19 L 20 15 L 16 15" />
+      </g>
+    </g>
+  </g>
+</svg>

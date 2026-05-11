@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.1",
+	"FriendlyName": "UnrealUtility",
+	"Description": "",
+	"Category": "Other",
+	"CreatedBy": "UltiRed",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": false,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "UnrealUtility",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		}
+	]
+}
